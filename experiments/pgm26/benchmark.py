@@ -408,24 +408,23 @@ def _run_fed_algos(stats: dict, client_data: list, fed_needed: list = None) -> d
                                                n_samples=n_ishc4, lmbda_type="fixed")
         results["FedISHC-4"] = (causal_order_ishc4, B_ishc4, time.time() - t0)
 
-    # FedRCD
-    if "FedRCD" in fed_needed:
+    # FedRCD-Def (Iterative algebraic deflation)
+    if 'FedRCD-Def' in fed_needed:
         t0 = time.time()
-        results["FedRCD"] = (*fedrcd(stats["agg_4"], adaptive=False, use_lasso=True, lmbda_type="fixed"),
+        results['FedRCD-Def'] = (*fedrcd(stats['agg_4'], adaptive=False, use_lasso=True, lmbda_type='fixed'),
                              time.time() - t0)
 
     # FedRCD-NI
-    if "FedRCD-NI" in fed_needed:
+    if 'FedRCD-NI' in fed_needed:
         t0 = time.time()
-        results["FedRCD-NI"] = (*fedrcd_noniterative(stats["agg_4"], adaptive=False, use_lasso=True,
-                                                      lmbda_type="fixed"),
+        results['FedRCD-NI'] = (*fedrcd_noniterative(stats['agg_4'], adaptive=False, use_lasso=True,
+                                                      lmbda_type='fixed'),
                                  time.time() - t0)
 
-
-    # FedRCD-Exact (Iterative)
-    if "FedRCD-Exact" in fed_needed:
+    # FedRCD-X (Iterative exact deflation)
+    if 'FedRCD-X' in fed_needed:
         t0 = time.time()
-        results["FedRCD-Exact"] = (*fedrcd_exact(client_data, use_lasso=True, lmbda_type="fixed"),
+        results['FedRCD-X'] = (*fedrcd_exact(client_data, use_lasso=True, lmbda_type='fixed'),
                                    time.time() - t0)
     return results
 
@@ -435,7 +434,8 @@ def _run_fed_algos(stats: dict, client_data: list, fed_needed: list = None) -> d
 # ─────────────────────────────────────────────────────────────────────────────
 
 # We put the slowest algorithms at the end so partial results for faster methods are saved sooner.
-ALL_FED_ALGO_NAMES    = ["FedHC", "FedISHC", "FedISHC-4", "FedRCD", "FedRCD-NI", "FedRCD-Exact"]
+# Change this line
+ALL_FED_ALGO_NAMES    = ['FedHC', 'FedISHC', 'FedISHC-4', 'FedRCD-Def', 'FedRCD-NI', 'FedRCD-X']
 ALL_CENTRAL_NAMES     = ["HC", "HCLiNGAM", "ICALiNGAM", "DirectLiNGAM"]
 ALL_ALGO_NAMES        = ALL_FED_ALGO_NAMES + ALL_CENTRAL_NAMES
 
@@ -1297,7 +1297,7 @@ def run_variance_diagnostic(n_seeds: int = 30):
         mu = Xall.mean(axis=0)
         return [(c - mu) / sd for c in client_data]
 
-    all_methods = ["FedHC", "FedISHC", "FedISHC-4", "FedRCD", "FedRCD-NI", "FedRCD-Exact", "DirectLiNGAM"]
+    all_methods = ['FedHC', 'FedISHC', 'FedISHC-4', 'FedRCD-Def', 'FedRCD-NI', 'FedRCD-X', 'DirectLiNGAM']
 
     for family, dists in noise_families.items():
         for dist in dists:
