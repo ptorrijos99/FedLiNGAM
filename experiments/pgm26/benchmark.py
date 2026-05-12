@@ -148,7 +148,7 @@ class PGMSyntheticDataGenerator:
 from src.common.cumulants import compute_local_raw_stats, aggregate_and_compute_cumulants
 from src.common.solvers import _estimate_B_from_cov, _estimate_B_lasso_from_cov
 from src.fedishc.core import ishc as fedishc_solver, ishc_4th as fedishc4_solver, hc as fedhc_solver
-from src.fedrcd.core import fedrdc, fedrdc_noniterative, fedrdc_exact
+from src.fedrcd.core import fedrcd, fedrcd_noniterative, fedrcd_exact
 
 # ── Centralised baselines ─────────────────────────────────────────────────────
 HAS_LINGAM = False
@@ -411,13 +411,13 @@ def _run_fed_algos(stats: dict, client_data: list, fed_needed: list = None) -> d
     # FedRCD
     if "FedRCD" in fed_needed:
         t0 = time.time()
-        results["FedRCD"] = (*fedrdc(stats["agg_4"], adaptive=False, use_lasso=True, lmbda_type="fixed"),
+        results["FedRCD"] = (*fedrcd(stats["agg_4"], adaptive=False, use_lasso=True, lmbda_type="fixed"),
                              time.time() - t0)
 
     # FedRCD-NI
     if "FedRCD-NI" in fed_needed:
         t0 = time.time()
-        results["FedRCD-NI"] = (*fedrdc_noniterative(stats["agg_4"], adaptive=False, use_lasso=True,
+        results["FedRCD-NI"] = (*fedrcd_noniterative(stats["agg_4"], adaptive=False, use_lasso=True,
                                                       lmbda_type="fixed"),
                                  time.time() - t0)
 
@@ -425,7 +425,7 @@ def _run_fed_algos(stats: dict, client_data: list, fed_needed: list = None) -> d
     # FedRCD-Exact (Iterative)
     if "FedRCD-Exact" in fed_needed:
         t0 = time.time()
-        results["FedRCD-Exact"] = (*fedrdc_exact(client_data, use_lasso=True, lmbda_type="fixed"),
+        results["FedRCD-Exact"] = (*fedrcd_exact(client_data, use_lasso=True, lmbda_type="fixed"),
                                    time.time() - t0)
     return results
 
@@ -1301,7 +1301,7 @@ def run_variance_diagnostic(n_seeds: int = 30):
 
     for family, dists in noise_families.items():
         for dist in dists:
-            print(f"Running killer experiment for {dist}...")
+            print(f"Running variance stratification diagnostic for {dist}...")
             pbar = tqdm(total=n_seeds, desc=f"{dist}")
             for seed in range(n_seeds):
                 rng = np.random.default_rng(10_000 + seed)
@@ -1358,18 +1358,18 @@ def main():
     )
     parser.add_argument(
         "--mode",
-        choices=["main", "n_ablation", "density", "bnlearn", "hetero", "real_sachs", "killer", "smoke", "all"],
+        choices=["main", "n_ablation", "density", "bnlearn", "hetero", "real_sachs", "stratification", "smoke", "all"],
         default="main",
         help=(
-            "main        -- p x K grid, n=2000 (Table 1)\n"
-            "n_ablation  -- n ablation, p=20 K=10 fixed\n"
-            "density     -- density ablation, p=20 K=10 fixed\n"
-            "bnlearn     -- real graph structure (asia/sachs/child/alarm) x K grid\n"
-            "hetero      -- heteroscedastic noise (FedISHC replication)\n"
-            "real_sachs  -- real biological observational Sachs dataset\n"
-            "killer      -- variance stratification diagnostic (killer experiment)\n"
-            "smoke       -- 1 cell from each mode\n"
-            "all         -- main + n_ablation + density + bnlearn + hetero + real_sachs + killer"
+            "main           -- p x K grid, n=2000 (Table 1)\n"
+            "n_ablation     -- n ablation, p=20 K=10 fixed\n"
+            "density        -- density ablation, p=20 K=10 fixed\n"
+            "bnlearn        -- real graph structure (asia/sachs/child/alarm) x K grid\n"
+            "hetero         -- heteroscedastic noise (FedISHC replication)\n"
+            "real_sachs     -- real biological observational Sachs dataset\n"
+            "stratification -- variance stratification diagnostic\n"
+            "smoke          -- 1 cell from each mode\n"
+            "all            -- main + n_ablation + density + bnlearn + hetero + real_sachs + stratification"
         ),
     )
     parser.add_argument("--dist", type=str, help="Filter by noise distribution (e.g. exponential)")
@@ -1408,7 +1408,7 @@ def main():
         run_hetero_benchmark()
     elif args.mode == "real_sachs":
         run_real_sachs_benchmark()
-    elif args.mode == "killer":
+    elif args.mode == "stratification":
         run_variance_diagnostic()
         
 if __name__ == "__main__":

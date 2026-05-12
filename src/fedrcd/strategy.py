@@ -3,11 +3,11 @@ FedRCD Flower Strategies.
 
 Two strategies matching the two protocol families:
 
-  FedRDCStrategy      — one-shot (FedRCD, FedRCD-NI, ISHC)
+  FedRCDStrategy      — one-shot (FedRCD, FedRCD-NI, ISHC)
       1 Flower round: clients send raw moment sums, server aggregates
       and runs the solver. Supports exact causal unlearning.
 
-  FedRDCExactStrategy — multi-round (FedRCD-Exact)
+  FedRCDExactStrategy — multi-round (FedRCD-Exact)
       p-1 Flower rounds: each round the server identifies a source,
       computes β, and sends (src_local, β) to clients. Clients deflate
       their local data and return fresh stats. No algebraic approximation.
@@ -20,13 +20,13 @@ from typing import List, Tuple, Dict, Optional, Union
 from flwr.common import Parameters, Scalar, FitRes, ndarrays_to_parameters, parameters_to_ndarrays
 from flwr.server.client_proxy import ClientProxy
 
-from .core import fedrdc, fedrdc_noniterative, ishc
+from .core import fedrcd, fedrcd_noniterative, ishc
 from ..common.cumulants import aggregate_and_compute_cumulants
 from ..common.metrics import compute_tau_matrix_4th_stats
 from ..common.solvers import _estimate_B_from_cov, _estimate_B_lasso_from_cov
 
 
-class FedRDCStrategy(fl.server.strategy.Strategy):
+class FedRCDStrategy(fl.server.strategy.Strategy):
     """
     One-shot federated strategy for FedRCD, FedRCD-NI and ISHC.
 
@@ -35,27 +35,27 @@ class FedRDCStrategy(fl.server.strategy.Strategy):
 
     def __init__(
         self,
-        solver: str = 'fedrdc',
+        solver: str = 'fedrcd',
         min_available_clients: int = 2,
     ):
         """
         Parameters
         ----------
         solver : str
-            'fedrdc'    — iterative algebraic deflation (FedRCD)
-            'fedrdc_ni' — global tau sort, no deflation  (FedRCD-NI)
+            'fedrcd'    — iterative algebraic deflation (FedRCD)
+            'fedrcd_ni' — global tau sort, no deflation  (FedRCD-NI)
             'ishc'      — improved ISHC baseline
         min_available_clients : int
             Minimum number of clients to wait for.
         """
-        if solver == 'fedrdc':
-            self.solver_fn = fedrdc
-        elif solver == 'fedrdc_ni':
-            self.solver_fn = fedrdc_noniterative
+        if solver == 'fedrcd':
+            self.solver_fn = fedrcd
+        elif solver == 'fedrcd_ni':
+            self.solver_fn = fedrcd_noniterative
         elif solver == 'ishc':
             self.solver_fn = ishc
         else:
-            raise ValueError(f"Unknown solver: {solver!r}. Use 'fedrdc', 'fedrdc_ni' or 'ishc'.")
+            raise ValueError(f"Unknown solver: {solver!r}. Use 'fedrcd', 'fedrcd_ni' or 'ishc'.")
 
         self.solver_name = solver
         self.min_available_clients = min_available_clients
@@ -309,7 +309,7 @@ def _unpack_raw_stats(fit_res: FitRes) -> dict:
     }
 
 
-class FedRDCExactStrategy(fl.server.strategy.Strategy):
+class FedRCDExactStrategy(fl.server.strategy.Strategy):
     """
     Multi-round federated strategy for FedRCD-Exact.
 
@@ -322,7 +322,7 @@ class FedRDCExactStrategy(fl.server.strategy.Strategy):
     -----
     Pass ``num_rounds = p - 1`` to ``fl.server.start_server()``.
 
-        strategy = FedRDCExactStrategy(p=8)
+        strategy = FedRCDExactStrategy(p=8)
         fl.server.start_server(config=fl.server.ServerConfig(num_rounds=7),
                                strategy=strategy)
         order, B = strategy.result_order, strategy.result_B

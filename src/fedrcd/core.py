@@ -3,19 +3,19 @@ FedRCD: Federated Regression-Directed Cumulants.
 
 Three variants of the same algorithm family:
 
-  fedrdc_noniterative()  [FedRCD-NI]
+  fedrcd_noniterative()  [FedRCD-NI]
       One-shot: computes τ once on the original aggregated stats and sorts
       globally. Federated counterpart of HCLiNGAM (Algorithm 2). Requires
       only 1 communication round. Fast but ignores residual structure.
 
-  fedrdc()               [FedRCD]
+  fedrcd()               [FedRCD]
       Iterative algebraic deflation: updates cumulant statistics in-place
       using β coefficients (OLS) after each source removal. One-shot —
       no further communication after the initial stats exchange. Exact
       under the true LiNGAM model; accumulates numerical error under
       finite samples or model misspecification.
 
-  fedrdc_exact()         [FedRCD-Exact]
+  fedrcd_exact()         [FedRCD-Exact]
       Multi-round exact deflation: p-1 rounds of communication. Each
       round the server broadcasts (source, β) and clients deflate their
       LOCAL raw data, then recompute fresh sufficient statistics. No
@@ -32,14 +32,14 @@ from ..common.metrics import compute_tau_matrix_3rd, compute_tau_matrix_4th_stat
 from ..common.solvers import _estimate_B_from_cov, _estimate_B_lasso_from_cov
 
 
-def fedrdc(
+def fedrcd(
     stats: Dict, 
     adaptive: bool = False, 
     use_lasso: bool = False,
     lmbda_type: str = 'fixed'
 ) -> Tuple[List[int], np.ndarray]:
     """
-    FedRDC Server-Side Solver.
+    FedRCD Server-Side Solver.
 
     Identifies causal order iteratively, then re-estimates B from the
     original covariance using OLS.
@@ -277,14 +277,14 @@ def ishc(
 # Non-iterative solvers (global τ sort — no deflation)
 # ═══════════════════════════════════════════════════════════════════════
 
-def fedrdc_noniterative(
+def fedrcd_noniterative(
     stats: Dict,
     adaptive: bool = False,
     use_lasso: bool = False,
     lmbda_type: str = 'fixed'
 ) -> Tuple[List[int], np.ndarray]:
     """
-    Non-iterative FedRDC: global τ₄ sort + OLS/Lasso B.
+    Non-iterative FedRCD: global τ₄ sort + OLS/Lasso B.
 
     Avoids iterative cumulant deflation entirely. Computes τ₄ once
     from the aggregated stats and sorts by row sum (like HCLiNGAM).
@@ -332,7 +332,7 @@ def fedrdc_noniterative(
 # Multi-round exact solver (clients deflate local data each round)
 # ═══════════════════════════════════════════════════════════════════════
 
-def fedrdc_exact(
+def fedrcd_exact(
     clients_X: List[np.ndarray],
     use_lasso: bool = False,
     lmbda_type: str = 'fixed'

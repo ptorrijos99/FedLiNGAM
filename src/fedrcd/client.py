@@ -3,10 +3,10 @@ FedRCD Flower Clients.
 
 Two clients matching the two protocol families:
 
-  FedRDCClient       — one-shot (FedRCD, FedRCD-NI)
+  FedRCDClient       — one-shot (FedRCD, FedRCD-NI)
       Sends raw moment sums once; server does all computation.
 
-  FedRDCExactClient  — multi-round (FedRCD-Exact)
+  FedRCDExactClient  — multi-round (FedRCD-Exact)
       Stateful client: receives (src_local, betas) from the server each
       round, deflates its local data in-place, then sends fresh stats.
       Raw data never leaves the client.
@@ -27,7 +27,7 @@ def _pack_stats(stats: dict) -> List[np.ndarray]:
     ]
 
 
-class FedRDCClient(fl.client.NumPyClient):
+class FedRCDClient(fl.client.NumPyClient):
     """
     One-shot Flower client for FedRCD and FedRCD-NI.
 
@@ -52,7 +52,7 @@ class FedRDCClient(fl.client.NumPyClient):
         return 0.0, self.X.shape[0], {}
 
 
-class FedRDCExactClient(fl.client.NumPyClient):
+class FedRCDExactClient(fl.client.NumPyClient):
     """
     Multi-round Flower client for FedRCD-Exact.
 
