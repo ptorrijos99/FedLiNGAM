@@ -1,6 +1,6 @@
 # Federated Causal Discovery via Regression-Directed Cumulants
 
-This repository contains the implementation and experiments for the anonymous submission "Federated Causal Discovery via Regression-Directed Cumulants" to PGM 2026.
+This repository contains the implementation and experiments for the submission "Federated Causal Discovery via Regression-Directed Cumulants" to PGM 2026.
 
 ## Overview
 
