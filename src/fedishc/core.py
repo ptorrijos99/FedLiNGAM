@@ -97,11 +97,11 @@ def ishc(
         c3_s = curr_c3[s]
 
         for xj in active_indices:
-            # alpha = effect of source s on x_j
+            # alpha = C_{2,1}(x_s, x_j) / C_3(x_s), the effect of source s on x_j
             if np.abs(c3_s) < _EPS:
                 alpha = 0.0
             else:
-                alpha = np.clip(curr_c21[xj, s] / c3_s, -_ALPHA_CLIP, _ALPHA_CLIP)
+                alpha = np.clip(curr_c21[s, xj] / c3_s, -_ALPHA_CLIP, _ALPHA_CLIP)
 
             A[xj, s] = alpha
 
@@ -111,7 +111,7 @@ def ishc(
             for xk in active_indices:
                 # lambda = effect of source s on x_k
                 if np.abs(c3_s) > _EPS:
-                    lam = np.clip(curr_c21[xk, s] / c3_s, -_ALPHA_CLIP, _ALPHA_CLIP)
+                    lam = np.clip(curr_c21[s, xk] / c3_s, -_ALPHA_CLIP, _ALPHA_CLIP)
                 else:
                     lam = 0.0
 
@@ -200,14 +200,14 @@ def ishc_4th(
             if np.abs(c3_s) < _EPS:
                 alpha = 0.0
             else:
-                alpha = np.clip(curr_c21[xj, s] / c3_s, -_ALPHA_CLIP, _ALPHA_CLIP)
+                alpha = np.clip(curr_c21[s, xj] / c3_s, -_ALPHA_CLIP, _ALPHA_CLIP)
 
             A[xj, s] = alpha
             curr_c3[xj] = curr_c3[xj] - (alpha ** 3) * c3_s
 
             for xk in active_indices:
                 if np.abs(c3_s) > _EPS:
-                    lam = np.clip(curr_c21[xk, s] / c3_s, -_ALPHA_CLIP, _ALPHA_CLIP)
+                    lam = np.clip(curr_c21[s, xk] / c3_s, -_ALPHA_CLIP, _ALPHA_CLIP)
                 else:
                     lam = 0.0
                 curr_c12[xj, xk] -= alpha * (lam ** 2) * c3_s
