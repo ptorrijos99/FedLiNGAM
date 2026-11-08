@@ -18,7 +18,7 @@ Baselines: FedISHC and FedHC (federated, third order), NOTEARS-ADMM (federated, 
 * `src/fedishc/`: FedISHC and FedHC. The deflation coefficient is `kappa_{2,1}(x_s, x_j) / kappa_3(x_s)`; the PGM results for FedISHC were produced with its arguments swapped.
 * `src/common/`: cumulant aggregation (`cumulants.py`), aggregation under vertical and hybrid partitions (`cumulants_partial.py`), the Gaussian mechanism (`dp.py`), and the solvers for B.
 * `experiments/pgm26/`: the PGM 2026 benchmark.
-* `experiments/benchmark/`: the grids, methods, metrics, figures and tables of the extended article. NOTEARS-ADMM is the authors' code (`third_party/notears-admm`, Apache 2.0).
+* `experiments/benchmark/`: the grids, methods and metrics of the extended article. NOTEARS-ADMM is the authors' code (`third_party/notears-admm`, Apache 2.0).
 * `experiments/deployment/`: the unlearning, privacy and record-erasure experiments of the extended article.
 * `data/`: the network topologies and the two real datasets (see `data/README.md`).
 
@@ -33,13 +33,11 @@ Baselines: FedISHC and FedHC (federated, third order), NOTEARS-ADMM (federated, 
 
 ## Extended version
 
-Every synthetic draw is fixed by its cell and seed, so each grid regenerates the same data. Run a grid (shards go to `~/fedrcd_results`, or `FEDRCD_RESULTS`), merge it, then build the tables and figures:
+Every synthetic draw is fixed by its cell and seed, so each grid regenerates the same data. Run a grid (shards go to `~/fedrcd_results`, or `FEDRCD_RESULTS`) and merge its shards into one CSV:
 
     python -m experiments.benchmark.run --list
     python -m experiments.benchmark.run --exp P_main --jobs 8
     python -m experiments.benchmark.run --collect P_main
-    python -m experiments.benchmark.tables
-    python -m experiments.benchmark.figures
 
 The grids are `P_main`, `P_bnlearn`, `E_gauss`, `E_sample`, `E_sample2`, `E_violations`, `E_real` and `E_scale`; `--chunk i --chunks n` runs one slice of a grid, for SLURM arrays. The deployment experiments are standalone scripts:
 
