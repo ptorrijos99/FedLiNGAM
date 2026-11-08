@@ -161,6 +161,22 @@ def r2sort(clients, seed):
                   floats=(p + p * p) * K, rounds=1)
 
 
+def kurtsort(clients, seed):
+    """Order by |excess kurtosis|, ascending. Mixing along directed paths drives a
+    descendant towards Gaussianity, so this reads the kurtosis ladder; it is
+    scale-free, so raw and standardised data give the same order."""
+    t0 = time.perf_counter()
+    p, K = clients[0].shape[1], len(clients)
+    # Each client sends sum(x^k) for k = 1..4; the server forms the pooled central moments.
+    n = sum(len(X) for X in clients)
+    s = [sum((X ** k).sum(0) for X in clients) / n for k in range(1, 5)]
+    m2 = s[1] - s[0] ** 2
+    m4 = s[3] - 4 * s[2] * s[0] + 6 * s[1] * s[0] ** 2 - 3 * s[0] ** 4
+    order = np.argsort(np.abs(m4 / m2 ** 2 - 3), kind="stable")
+    return Result(order=order.tolist(), t_server=time.perf_counter() - t0,
+                  floats=4 * p * K, rounds=1)
+
+
 def random_order(clients, seed):
     p = clients[0].shape[1]
     return Result(order=np.random.default_rng(seed).permutation(p).tolist(), rounds=0)
@@ -279,11 +295,12 @@ REGISTRY = {
     # reference orders
     "VarSort": (varsort, "null"),
     "R2Sort": (r2sort, "null"),
+    "KurtSort": (kurtsort, "null"),
     "Random": (random_order, "null"),
 }
 
 CUMULANT = ["FedRCD-NI", "FedRCD-Def", "FedRCD-X", "FedISHC", "FedHC", "FedHC-iter", "FedISHC-4"]
 CENTRAL = ["HC", "HC-LiNGAM", "DirectLiNGAM", "ICA-LiNGAM"]
-NULLS = ["VarSort", "R2Sort", "Random"]
+NULLS = ["VarSort", "R2Sort", "KurtSort", "Random"]
 INSTRUMENT = ["FedRCD-NI-M", "FedRCD-NI-Mn"]
 ALL = CUMULANT + ["NOTEARS-ADMM"] + CENTRAL + NULLS

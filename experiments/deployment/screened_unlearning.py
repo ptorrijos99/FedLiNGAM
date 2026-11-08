@@ -14,9 +14,10 @@ decide whether it is worth anything:
 
 Ground truth is `fedrcd_exact` re-run on the retained data.
 
-Usage: python experiments/deployment/screened_unlearning.py
+Usage: python experiments/deployment/screened_unlearning.py [--seeds 100]
 """
 
+import argparse
 import os
 import sys
 import time
@@ -34,7 +35,7 @@ from src.fedrcd.unlearn import fedrcd_exact_recorded, screened_unlearn          
 OUT = "experiments/deployment/results/screened_unlearning.csv"
 
 
-def run(seeds=15, p=20, n_per_client=2000, K=10, dist="mixed", density=0.2):
+def run(seeds=100, p=20, n_per_client=2000, K=10, dist="mixed", density=0.2):
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     rows = []
 
@@ -119,4 +120,6 @@ def _forget_trace(record, shards, client, n_forget):
 
 
 if __name__ == "__main__":
-    run()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--seeds", type=int, default=100)
+    run(seeds=ap.parse_args().seeds)

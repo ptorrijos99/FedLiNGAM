@@ -47,8 +47,10 @@ The grids are `P_main`, `P_bnlearn`, `E_gauss`, `E_sample`, `E_sample2`, `E_viol
     python experiments/deployment/screened_unlearning.py   # screening test of FedRCD-X
     python experiments/deployment/dp_one_round.py          # Gaussian mechanism, one-round methods
     python experiments/deployment/dp_fedrcdx.py            # Gaussian mechanism, FedRCD-X
+    python experiments/deployment/dp_clients.py            # Gaussian mechanism added by each client
     python experiments/deployment/reconstruction.py        # reconstruction by subtraction
     python experiments/deployment/cohorts.py               # cohort aggregation
+    python experiments/deployment/cohort_erasure.py        # erasure at cohort granularity
     python experiments/deployment/record_erasure.py        # batched record erasure
 
     python -m pytest tests                                 # vertical and hybrid aggregation
